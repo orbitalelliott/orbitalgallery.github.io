@@ -349,7 +349,11 @@
             text-shadow: 0 4px 16px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.4);
             opacity: 0;
             transform: translate(-50%, 10px);
-            will-change: opacity, transform;
+            transition: opacity 1s ease, transform 1s ease;
+        }
+        .scroll-video__copy .copy-line.active {
+            opacity: 1;
+            transform: translate(-50%, 0);
         }
         
 
@@ -466,82 +470,77 @@
         update();
       })();
 
-      // Scroll-play video: auto-plays when section enters view; pauses when out.
+      // Scroll-play video + timed copy carousel
       (function() {
         const section = document.querySelector('.scroll-video');
         const stage = document.querySelector('.scroll-video__stage');
         const video = document.getElementById('scrollVideo');
-        const lines = section ? section.querySelectorAll('.scroll-video__copy .copy-line') : null;
+        const lines = section ? Array.from(section.querySelectorAll('.scroll-video__copy .copy-line')) : [];
         if (!section || !video) return;
 
         // Respect reduced motion
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
         if (reduceMotion.matches) return;
 
-        const PLAYBACK_RATE = 0.6; // slower, smoother motion
+        const PLAYBACK_RATE = 0.6; // calmer motion
+        const FADE_MS = 1000;      // 1s fade in/out
+        const HOLD_MS = 3000;      // 3s visible
+        const GAP_MS  = 500;       // 0.5s gap between items
+        let idx = 0;
+        let holdTimer = null;
+        let gapTimer = null;
 
-        let lastY = window.scrollY;
-        let scrollingUp = false;
-        window.addEventListener('scroll', () => {
-          const y = window.scrollY || 0; scrollingUp = y < lastY; lastY = y;
-        }, { passive: true });
+        function setActive(i){
+          lines.forEach((el, j) => {
+            if (j === i) el.classList.add('active');
+            else el.classList.remove('active');
+          });
+        }
+
+        function scheduleNext(){
+          // After HOLD_MS, fade out current; then after FADE_MS+GAP_MS, show next
+          holdTimer = setTimeout(() => {
+            lines[idx] && lines[idx].classList.remove('active');
+            gapTimer = setTimeout(() => {
+              idx = (idx + 1) % lines.length;
+              setActive(idx);
+              scheduleNext();
+            }, FADE_MS + GAP_MS);
+          }, HOLD_MS);
+        }
+        function startCarousel(){
+          if (!lines.length || holdTimer || gapTimer) return;
+          setActive(idx);
+          scheduleNext();
+        }
+        function stopCarousel(){
+          if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+          if (gapTimer)  { clearTimeout(gapTimer);  gapTimer  = null; }
+        }
 
         const io = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
             const visible = entry.isIntersecting && entry.intersectionRatio > 0.05;
             if (visible) {
-              // ensure slow rate on play
               video.defaultPlaybackRate = PLAYBACK_RATE;
               video.playbackRate = PLAYBACK_RATE;
-              // some browsers need the property as well as the attribute
               video.muted = true;
               video.play().catch(()=>{});
+              startCarousel();
             } else {
               video.pause();
-              // If leaving upwards, reset to start so replay feels fresh
-              if (scrollingUp) { try { video.currentTime = 0; } catch(e) {} }
+              stopCarousel();
             }
           });
         }, { root: null, threshold: [0, 0.05, 0.25, 0.5, 0.75, 1] });
 
         io.observe(stage || section);
 
-        // Set initial rate when metadata is ready
         video.addEventListener('loadedmetadata', () => {
           video.defaultPlaybackRate = PLAYBACK_RATE;
           video.playbackRate = PLAYBACK_RATE;
           video.muted = true;
         });
-
-        // Cross-fade copy lines as you scroll through the section
-        function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
-        function easeInOut(t){ return t*t*(3-2*t); }
-        function updateCopy(){
-          if (!lines || !lines.length) return;
-          const rect = section.getBoundingClientRect();
-          const total = Math.max(1, rect.height - window.innerHeight);
-          const seen = clamp(window.innerHeight - rect.top, 0, total);
-          const progress = total ? (seen / total) : 0; // 0..1
-          const N = lines.length;
-          const seg = 1 / N;
-          for (let i = 0; i < N; i++) {
-            const center = (i + 0.5) * seg; // midpoint of segment
-            const windowWidth = seg * 0.8; // how much span to show a line
-            const x = (progress - center) / (windowWidth / 2); // -1..0..1
-            let t = 1 - clamp(Math.abs(x), 0, 1); // 1 at center -> 0 at edges
-            t = easeInOut(t);
-            const el = lines[i];
-            const op = t; // 0..1
-            const y = (1 - t) * 18; // lift into place
-            el.style.opacity = op.toFixed(3);
-            el.style.transform = 'translate(-50%, ' + y.toFixed(1) + 'px)';
-          }
-        }
-
-        const onScrollOrResize = () => requestAnimationFrame(updateCopy);
-        window.addEventListener('scroll', onScrollOrResize, { passive: true });
-        window.addEventListener('resize', onScrollOrResize);
-        updateCopy();
       })();
     </script>
   </body>
