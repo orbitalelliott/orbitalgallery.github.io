@@ -88,10 +88,19 @@
         }
         
         .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
             font-size: 1.5rem;
             font-weight: 700;
             color: #ffffff;
         }
+        .logo .logo-mark {
+            height: 28px;
+            width: auto;
+            display: block;
+        }
+        .logo .logo-text { line-height: 1; }
         
         .nav-links {
             display: flex;
@@ -373,7 +382,10 @@
 <body>
     <nav>
         <div class="nav-container">
-            <div class="logo">OrbitalGallery</div>
+            <div class="logo">
+                <img src="images/rings-logo.png" alt="OrbitalGallery logo" class="logo-mark">
+                <span class="logo-text">OrbitalGallery</span>
+            </div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="/support">Support</a></li>
