@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orbital Gallery - Immersive Photo Gallery for Apple Vision Pro</title>
+    <title>OrbitalGallery - Immersive Photo Gallery for Apple Vision Pro</title>
     <meta name="description" content="Experience your photos like never before with Orbital Gallery - an immersive 3D photo gallery designed exclusively for Apple Vision Pro.">
     
     <!-- Open Graph / Facebook -->
@@ -73,10 +73,10 @@
             top: 0;
             width: 100%;
             padding: 1rem 2rem;
-            background: rgba(10, 10, 15, 0.8);
-            backdrop-filter: blur(20px);
+            background: transparent; /* make nav fully transparent */
+            backdrop-filter: none; /* remove blur to keep it clear */
             z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: none; /* remove divider line */
         }
         
         .nav-container {
@@ -429,7 +429,7 @@
                 <a href="#">Privacy Policy</a>
             </div>
             <p class="copyright">
-                © 2024 OrbitalApps. All rights reserved.
+                © 2025 OrbitalApps. All rights reserved.
             </p>
         </div>
     </footer>
