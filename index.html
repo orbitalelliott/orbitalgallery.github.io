@@ -213,6 +213,23 @@
             text-shadow: 0 2px 10px rgba(0,0,0,0.6);
             text-wrap: balance;
         }
+
+        /* App Store badge */
+        .app-badge {
+            display: inline-block;
+            margin-top: 0.75rem;
+            animation: fadeInUp 1s ease-out 0.55s both;
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.35));
+        }
+        .app-badge img {
+            height: 54px;
+            width: auto;
+            display: block;
+        }
+        .app-badge:focus-visible img,
+        .app-badge:hover img {
+            transform: translateY(-1px);
+        }
         
         /* (Removed) App Store badge + text styles */
         
@@ -403,6 +420,9 @@
                 <p class="hero-description">
                     Experience your photos like never before. Step into a stunning 3D orbital gallery where your memories float in space around you. Import from Photos, Files, or network drives and watch as your images arrange themselves in beautiful, customizable rings.
                 </p>
+                <a class="app-badge" href="https://apps.apple.com/us/app/orbitalgallery/id6749781814" target="_blank" rel="noopener" aria-label="Download OrbitalGallery on the App Store">
+                    <img src="images/AppleStore.png" alt="Download on the App Store">
+                </a>
             </div>
             <div class="hero-fader" aria-hidden="true"></div>
         </section>
